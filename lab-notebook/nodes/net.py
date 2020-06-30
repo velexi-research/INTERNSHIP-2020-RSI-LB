@@ -9,12 +9,12 @@ class FoldiakNet(net):
     def connect_layer_hebbian(self, layerin, layerout):
         for i in layerin.nodes:
             for j in layerout.nodes:
-                self.connects.append(HebbianConnect(i,j))
+                self.append_connect(HebbianConnect(i,j))
     def connect_self_antihebbian(self, layerout):
         for i in layerout.nodes:
             for j in layerout.nodes:
                 if (i is not j):
-                    self.connects.append(AntiHebbianConnect(i,j))
+                    self.append_connect(AntiHebbianConnect(i,j))
     def getimage(self):
         maxpixels = 1
         image = []
