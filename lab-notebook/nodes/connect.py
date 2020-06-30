@@ -6,13 +6,21 @@ class HebbianConnect(connect):
         self.output = nodeout
         self.bias = 1.0
     def update(self):
-        pass
-    
+        #hebbian rule
+        b = self.valdict.get("b", default=0.1)
+        dq = b * nodeout.val * (nodein.val - self.bias)
+        self.bias += dq
     
 class AntiHebbianConnect(connect):
     def __init__(self, nodein, nodeout):
         self.input = nodein
         self.output = nodeout
-        self.bias = 1.0
+        self.bias = -1.0
     def update(self):
-        pass
+        #anti-hebbian rule
+        a = self.valdict.get("a", default=0.1)
+        p = self.valdict.get("p", default=0.1)
+        dw = (0-a) * ((nodein.val * nodeout.val) - (p*p))
+        self.bias += dw
+        if (self.bias > 0):
+            self.bias = 0

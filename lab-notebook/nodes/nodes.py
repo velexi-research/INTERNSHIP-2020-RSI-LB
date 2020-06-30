@@ -12,7 +12,11 @@ class FoldiakNode(node):
         self.biases = [1.0] * len(nodesin)
         self.thres = thres
     def update(self, connects):
-        pass
+        #threshold modification
+        y = self.valdict.get("y", default=0.1)
+        p = self.valdict.get("p", default=0.1)
+        dt = y * (self.val - p)
+        self.thres += dt
     def evaluate(self, connects):
         if len(connects) != 0:
             val = 0
