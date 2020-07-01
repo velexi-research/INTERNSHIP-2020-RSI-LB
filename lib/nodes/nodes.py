@@ -6,15 +6,19 @@ import statistics
 import numpy as np
 
 class FoldiakNode(node):
-    def __init__(self, nodesin, thres):
+    def __init__(self, thres):
         self.val = 0
-        self.connections = nodesin
-        self.biases = [1.0] * len(nodesin)
         self.thres = thres
+        self.layer = None
     def update(self, connects):
+        #round value
+        if self.val > 0.5:
+            self.val = 1
+        else:
+            self.val = 0
         #threshold modification
-        y = self.valdict.get("y", default=0.1)
-        p = self.valdict.get("p", default=0.1)
+        y = self.getdict().get("y", 0.02)
+        p = self.getdict().get("p", 0.1)
         dt = y * (self.val - p)
         self.thres += dt
     def evaluate(self, connects):
@@ -24,7 +28,7 @@ class FoldiakNode(node):
                 i = connects[j]
                 if(i.to(self)):
                     val += i.getval()
-            if val > thres:
+            if val > self.thres:
                 self.val = 1
             else:
                 self.val = 0
@@ -35,12 +39,13 @@ class FoldiakNode(node):
                 
 class InputNode(node):
     def __init__(self, value):
-        self.connections = []
-        self.biases = []
         self.val = value
-    def append(self, node):
-        self.connections = []
-    def update(self):
-        self.val = self.val
-    def evaluate(self):
-        self.val = self.val
+        self.valstored = value
+        self.layer = None
+    def update(self, connects):
+        self.val = self.valstored
+    def evaluate(self, connects):
+        self.val = self.valstored
+    def setvalstored(self, valstored):
+        self.valstored = valstored
+        self.val = valstored

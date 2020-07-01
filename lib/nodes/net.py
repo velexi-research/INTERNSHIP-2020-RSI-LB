@@ -1,5 +1,6 @@
 from nodes.core import *
 from nodes.connect import *
+from nodes.util import *
 
 
 import numpy as np
@@ -24,6 +25,7 @@ class FoldiakNet(net):
             for j in layerout.nodes:
                 if (i is not j):
                     self.append_connect(AntiHebbianConnect(i,j))
+        self.inihblayers.append(layerout)
     def getimage(self):
         maxpixels = 1
         image = []
@@ -54,3 +56,33 @@ class FoldiakNet(net):
                     thisrow.append(i.val)
                 image.append(thisrow)
         return(np.uint8(np.array(image)*255))
+    def __init__(self):
+        self.layers = []
+        self.connects = []
+        self.valdict = dict()
+        self.diffeqs = []
+        self.inihblayers = []
+    def foldiaksetup(self):
+        self.diffeqs = []
+        for i in self.layers:
+            if i in self.inihblayers:
+                self.diffeqs = []
+                for node in i.nodes:
+                    node.val = 0
+                    dq = FoldiakDiffEq(node)
+                    self.diffeqs.append(dq)
+    def update(self):
+        #solve diff eq
+        self.foldiaksetup()
+        for i in range(self.getdict().get("tnum",100)):
+            self.foldiakupdate()
+        #update connections, nodes(rounding on nodes)
+        for i in self.layers:
+            i.update(self.connects)
+        for i in self.connects:
+            i.update()
+    def foldiakupdate(self):
+        for i in self.diffeqs:
+            i.prop()
+        for i in self.diffeqs:
+            i.pushval()

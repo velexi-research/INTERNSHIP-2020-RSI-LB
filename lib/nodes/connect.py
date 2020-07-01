@@ -9,8 +9,8 @@ class HebbianConnect(connect):
         self.bias = uniform(0,1)
     def update(self):
         #hebbian rule
-        b = self.valdict.get("b", default=0.1)
-        dq = b * nodeout.val * (nodein.val - self.bias)
+        b = self.getdict().get("b", 0.02)
+        dq = b * self.output.val * (self.input.val - self.bias)
         self.bias += dq
     
 class AntiHebbianConnect(connect):
@@ -20,9 +20,9 @@ class AntiHebbianConnect(connect):
         self.bias = 0.0
     def update(self):
         #anti-hebbian rule
-        a = self.valdict.get("a", default=0.1)
-        p = self.valdict.get("p", default=0.1)
-        dw = (0-a) * ((nodein.val * nodeout.val) - (p*p))
+        a = self.getdict().get("a", 0.1)
+        p = self.getdict().get("p", 0.1)
+        dw = (0-a) * ((self.input.val * self.output.val) - (p*p))
         self.bias += dw
         if (self.bias > 0):
             self.bias = 0
