@@ -7,9 +7,18 @@ import math
 
 class FoldiakNet(net):
     def connect_layer_hebbian(self, layerin, layerout):
-        for i in layerin.nodes:
-            for j in layerout.nodes:
-                self.append_connect(HebbianConnect(i,j))
+        for j in layerout.nodes:
+            norm_square_sum = 0
+            c_s = []
+            for i in layerin.nodes:
+                c_to_add = HebbianConnect(i,j)
+                self.append_connect(c_to_add)
+                
+                #Normalize lengths to 1
+                c_s.append(c_to_add)
+                norm_square_sum += (c_to_add.bias * c_to_add.bias)
+            for c in c_s:
+                c.bias /= norm_square_sum
     def connect_self_antihebbian(self, layerout):
         for i in layerout.nodes:
             for j in layerout.nodes:

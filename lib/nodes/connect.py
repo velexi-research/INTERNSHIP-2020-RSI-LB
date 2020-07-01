@@ -1,10 +1,12 @@
 from nodes.core import connect
 
+from random import uniform
+
 class HebbianConnect(connect):
     def __init__(self, nodein, nodeout):
         self.input = nodein
         self.output = nodeout
-        self.bias = 1.0
+        self.bias = uniform(0,1)
     def update(self):
         #hebbian rule
         b = self.valdict.get("b", default=0.1)
@@ -15,7 +17,7 @@ class AntiHebbianConnect(connect):
     def __init__(self, nodein, nodeout):
         self.input = nodein
         self.output = nodeout
-        self.bias = -1.0
+        self.bias = 0.0
     def update(self):
         #anti-hebbian rule
         a = self.valdict.get("a", default=0.1)
