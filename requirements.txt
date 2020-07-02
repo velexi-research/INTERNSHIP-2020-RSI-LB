@@ -23,3 +23,7 @@ pandas
 scikit-learn
 scipy
 seaborn
+
+# Other - datasets
+tensorflow
+tensorflow-datasets
