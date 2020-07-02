@@ -27,3 +27,6 @@ seaborn
 # Other - datasets
 tensorflow
 tensorflow-datasets
+
+#Performance
+numba

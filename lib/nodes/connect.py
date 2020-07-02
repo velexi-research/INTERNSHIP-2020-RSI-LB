@@ -12,6 +12,8 @@ class HebbianConnect(connect):
         b = self.getdict().get("b", 0.02)
         dq = b * self.output.val * (self.input.val - self.bias)
         self.bias += dq
+    def pushval(self):
+        self.output.solver.last_cs.append(self)
     
 class AntiHebbianConnect(connect):
     def __init__(self, nodein, nodeout):
@@ -26,3 +28,5 @@ class AntiHebbianConnect(connect):
         self.bias += dw
         if (self.bias > 0):
             self.bias = 0
+    def pushval(self):
+        self.output.solver.connects.append(self)

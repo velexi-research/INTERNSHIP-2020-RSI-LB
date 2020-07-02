@@ -14,6 +14,7 @@ class FoldiakNet(net):
             for i in layerin.nodes:
                 c_to_add = HebbianConnect(i,j)
                 self.append_connect(c_to_add)
+                self.pushconnects.append(c_to_add)
                 
                 #Normalize lengths to 1
                 c_s.append(c_to_add)
@@ -24,7 +25,9 @@ class FoldiakNet(net):
         for i in layerout.nodes:
             for j in layerout.nodes:
                 if (i is not j):
-                    self.append_connect(AntiHebbianConnect(i,j))
+                    c_to_add = AntiHebbianConnect(i,j)
+                    self.append_connect(c_to_add)
+                    self.pushconnects.append(c_to_add)
         self.inihblayers.append(layerout)
     def getimage(self):
         maxpixels = 1
@@ -62,15 +65,22 @@ class FoldiakNet(net):
         self.valdict = dict()
         self.diffeqs = []
         self.inihblayers = []
+        self.pushconnects = []
+        self.isinit = False
     def foldiaksetup(self):
+        for i in self.diffeqs:
+            i.reset()
+    def setup(self):
         self.diffeqs = []
-        for i in self.layers:
-            if i in self.inihblayers:
-                self.diffeqs = []
-                for node in i.nodes:
-                    node.val = 0
-                    dq = FoldiakDiffEq(node)
-                    self.diffeqs.append(dq)
+        for i in self.inihblayers:
+            for node in i.nodes:
+                dq = FoldiakDiffEq(node)
+                node.setsolver(dq)
+                self.diffeqs.append(dq)
+        for i in self.pushconnects:
+            i.pushval()
+        self.foldiaksetup()
+        self.isinit = True
     def update(self):
         #solve diff eq
         self.foldiaksetup()

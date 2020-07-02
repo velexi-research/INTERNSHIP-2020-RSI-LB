@@ -10,6 +10,7 @@ class FoldiakNode(node):
         self.val = 0
         self.thres = thres
         self.layer = None
+        self.solver = None
     def update(self, connects):
         #round value
         if self.val > 0.5:
@@ -22,16 +23,9 @@ class FoldiakNode(node):
         dt = y * (self.val - p)
         self.thres += dt
     def evaluate(self, connects):
-        if len(connects) != 0:
-            val = 0
-            for j in range(len(connects)):
-                i = connects[j]
-                if(i.to(self)):
-                    val += i.getval()
-            if val > self.thres:
-                self.val = 1
-            else:
-                self.val = 0
+        pass
+    def setsolver(self, solver):
+        self.solver = solver
 
                 
                 

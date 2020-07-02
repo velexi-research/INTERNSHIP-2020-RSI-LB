@@ -38,6 +38,8 @@ class net(core):
         return self.valdict
     def setparam(self,key, val):
         self.valdict[key] = val
+    def setup(self):
+        pass
 
                 
 class connect(core):
