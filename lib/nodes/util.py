@@ -25,7 +25,7 @@ class FoldiakDiffEq:
         dy = (f - self.yi)*self.dt
         self.yi += dy
     def reset(self):
-        self.yi = node.getdict().get("starty", 0.0)
+        self.yi = self.node.getdict().get("starty", 0.0)
         self.pushval()
         xqs = 0
         for i in self.last_cs:
