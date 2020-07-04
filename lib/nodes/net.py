@@ -5,6 +5,7 @@ from nodes.util import *
 
 import numpy as np
 import math
+    
 
 class FoldiakNet(net):
     def connect_layer_hebbian(self, layerin, layerout):
@@ -29,36 +30,6 @@ class FoldiakNet(net):
                     self.append_connect(c_to_add)
                     self.pushconnects.append(c_to_add)
         self.inihblayers.append(layerout)
-    def getimage(self):
-        maxpixels = 1
-        image = []
-        for i in self.layers:
-            islayer = False
-            try:
-                i.val - 1
-            except:
-                islayer = True
-            if islayer:
-                if np.lcm(len(i.val), maxpixels) > maxpixels:
-                    maxpixels = np.lcm(len(i.val), maxpixels)
-        for i in self.layers:
-            islayer = False
-            try:
-                i.val - 1
-            except:
-                islayer = True
-            if islayer:
-                thisrow = []
-                for j in i.val:
-                    for n in range(math.floor(maxpixels/len(i.val))):
-                        thisrow.append(j)
-                image.append(thisrow)
-            else:
-                thisrow = []
-                for i in range(maxpixels):
-                    thisrow.append(i.val)
-                image.append(thisrow)
-        return(np.uint8(np.array(image)*255))
     def __init__(self):
         self.layers = []
         self.connects = []
@@ -96,3 +67,41 @@ class FoldiakNet(net):
             i.prop()
         for i in self.diffeqs:
             i.pushval()
+            
+            
+            
+            
+            
+            
+class FoldiakShapedNet(net):
+    def connect_foldiak(self, layerin, layerout):
+        cg1 = ShapedCGroup(layerin, layerout)
+        cg1.mkconnects(HebbianConnect)
+        self.cgroups.append(cg1)
+        cg2 = ShapedCGroup(layerout, layerout)
+        cg2.mkconnects(AntiHebbianConnect)
+        self.cgroups.append(cg2)
+        self.inihblayers.append([layerout,cg1,cg2])
+    def __init__(self):
+        self.layers = []
+        self.cgroups = []
+        self.connects = []
+        self.valdict = dict()
+        self.inihblayers = []
+        self.diffeqs = []
+        self.isinit = False
+    def setup(self):
+        self.diffeqs = []
+        for i in self.inihblayers:
+            odesolver = FoldiakShapedDiffEq(i[0], i[1], i[2])
+            self.diffeqs.append(odesolver)
+        self.isinit = True
+    def update(self):
+        for i in self.diffeqs:
+            i.update()
+        for i in self.layers:
+            i.update(self.connects)
+        for i in self.cgroups:
+            i.update()
+        for i in self.connects:
+            i.update()

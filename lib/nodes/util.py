@@ -1,5 +1,8 @@
 from math import exp
 from numba import jit
+import numpy as np
+
+from scipy.integrate import odeint
 
 #import time
 
@@ -32,6 +35,40 @@ class FoldiakDiffEq:
             xqs += i.input.returnval() * i.bias
         self.inside_c = xqs - self.node.thres
 
-@jit
+@jit(nopython=True, parallel=True)
 def foldiak_func(l, inside):
-    return 1.0/(1.0+exp(-1 * l * inside))
+    return 1.0/(1.0+np.exp(-1 * l * inside))
+
+
+def weightsum(axin, qarr, xarr):
+    return np.tensordot(xarr,qarr, axes = axin)
+    
+
+    
+class FoldiakShapedDiffEq:
+    def __init__(self, layer, qgroup, wgroup):
+        self.dt = layer.getdict().get("dt", 0.1)
+        self.y0 = layer.getdict().get("starty", 0.0)
+        self.tnum = layer.getdict().get("tnum",100)
+        self.qs = qgroup
+        self.ws = wgroup
+        self.layer = layer
+        self.net = layer.net
+        self.l = layer.getdict().get("l", 10)
+    def update(self):
+        xsum = self.getxsum()
+        l = self.l
+        yax = len(self.ws.inshape)
+        ws = self.ws.getbiases()
+        ts = self.layer.returnshapedthres()
+        tlin = np.linspace(0,self.dt*self.tnum, num=self.tnum)
+        ysum = lambda y: weightsum(yax,
+                                   ws, y)
+        ode = lambda y,t: foldiak_func(l, xsum - ts + ysum(y)) - y
+        #print(ode(np.full(self.layer.shape, self.y0), 0))
+        ys = odeint(ode, np.full(self.layer.shape, self.y0), tlin)
+        yfinals = np.where(ys > 0.5, 1, 0)
+        self.layer.setshapedvals(yfinals)
+    def getxsum(self):
+        return weightsum(len(self.qs.inshape),
+                             self.qs.getbiases(), self.qs.input.returnshapedvals())

@@ -68,6 +68,7 @@ class node(core):
     def __init__(self):
         self.val = 0
         self.layer = None
+        self.thres = 0
     def returnval(self):
         return self.val
     def update(self, connects):
@@ -106,6 +107,20 @@ class layer(core):
         for i in self.nodes:
             vals.append(i.val)
         return vals
+    def getdict(self):
+        try:
+            return self.net.getdict()
+        except Exception:
+            return nodes_empty_default_dict
+
+class cgroup(core):
+    def __init__(self):
+        self.connects = []
+        self.valdict = nodes_empty_default_dict
+        self.net = None
+    def update(self):
+        for i in self.connects:
+            i.update()
     def getdict(self):
         try:
             return self.net.getdict()

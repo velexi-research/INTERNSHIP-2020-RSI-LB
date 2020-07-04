@@ -11,6 +11,11 @@ class FoldiakNode(node):
         self.thres = thres
         self.layer = None
         self.solver = None
+    def __init__(self):
+        self.val = 0
+        self.thres = 0.5
+        self.layer = None
+        self.solver = None
     def update(self, connects):
         #round value
         if self.val > 0.5:
@@ -36,6 +41,11 @@ class InputNode(node):
         self.val = value
         self.valstored = value
         self.layer = None
+    def __init__(self):
+        value = 0
+        self.val = value
+        self.valstored = value
+        self.layer = None
     def update(self, connects):
         self.val = self.valstored
     def evaluate(self, connects):
@@ -43,3 +53,16 @@ class InputNode(node):
     def setvalstored(self, valstored):
         self.valstored = valstored
         self.val = valstored
+    def setval(self, valstored):
+        self.valstored = valstored
+        self.val = valstored
+
+
+class NullNode(node):
+    def __init__(self):
+        self.val = 0
+        self.layer = None
+    def update(self, connects):
+        self.val = 0
+    def evaluate(self, connects):
+        self.val = 0
