@@ -39,7 +39,7 @@ class FoldiakDiffEq:
 def foldiak_func(l, inside):
     return 1.0/(1.0+np.exp(-1 * l * inside))
 
-@njit
+
 def weightsum(xarr, qarr):
     return np.matmul(xarr,qarr)
     
@@ -47,6 +47,7 @@ def weightsum(xarr, qarr):
     
 class FoldiakShapedDiffEq:
     def __init__(self, layer, qgroup, wgroup):
+        self.net = layer.net
         self.dt = layer.getdict().get("dt", 0.1)
         self.y0 = layer.getdict().get("starty", 0.0)
         self.tnum = layer.getdict().get("tnum",100)
@@ -55,7 +56,6 @@ class FoldiakShapedDiffEq:
         self.ws = wgroup
         self.layer = layer
         self.tlin = np.linspace(0,self.dt*self.tnum, num=self.tnum)
-        self.net = layer.net
         self.l = layer.getdict().get("l", 10)
         self.trange = (0, self.tnum*self.dt)
     def update(self):
@@ -67,7 +67,7 @@ class FoldiakShapedDiffEq:
         ysum = lambda y: weightsum(y, ws)
         ode = lambda t,y: foldiak_func(l, xsum - ts + ysum(y)) - y
         #print(ode(np.full(self.layer.shape, self.y0), 0))
-        #ys = scipy.integrate.odeint(ode, np.full(self.layer.shape, self.y0), self.tlin)
-        ys = scipy.integrate.solve_ivp(ode, self.trange, np.full(self.layer.nodes.shape, self.y0), method=self.method, t_eval=[self.trange[1]]).y
+        ys = scipy.integrate.odeint(ode, np.full(self.layer.shape, self.y0), self.tlin, tfirst=True)
+        #ys = scipy.integrate.solve_ivp(ode, self.trange, np.full(self.layer.nodes.shape, self.y0), method=self.method, t_eval=[self.trange[1]]).y
         yfinals = np.where(ys > 0.5, 1, 0)
         self.layer.setvals(yfinals)

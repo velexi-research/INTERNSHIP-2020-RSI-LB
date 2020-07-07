@@ -1,3 +1,3 @@
 non-vectorized euler (what I wrote):       0.016094658999999904 sec
 vectorized:
-    solve_ivp, BDF:                        0.023468572999999996 sec
+    odeint:                                0.01308842400000001  sec

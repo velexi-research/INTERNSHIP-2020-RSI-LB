@@ -61,6 +61,8 @@ class connect(core):
             return self.net.getdict()
         except Exception:
             return nodes_empty_default_dict
+    def getbias(self):
+        return self.bias
                 
                 
                 

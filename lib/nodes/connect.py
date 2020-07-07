@@ -27,18 +27,18 @@ class AntiHebbianConnect(connect):
         #anti-hebbian rule
         a = self.getdict().get("a", 0.1)
         p = self.getdict().get("p", 0.1)
-        dw = (0-a) * ((self.input.val * self.output.val) - (p*p))
+        dw = (0.0-a) * ((self.input.val * self.output.val) - (p*p))
         self.bias += dw
         if (self.bias > 0):
-            self.bias = 0
+            self.bias = 0.0
         elif (self.input is self.output):
-            self.bias = 0
+            self.bias = 0.0
     def pushval(self):
         self.output.solver.connects.append(self)
         
 
 class ShapedCGroup(cgroup):
-    vbias = np.vectorize(lambda i: i.bias)
+    vbias = np.vectorize(lambda i: i.getbias())
     vupdate = np.vectorize(lambda i: i.update())
     def setnet(i,net):
         i.net = net
