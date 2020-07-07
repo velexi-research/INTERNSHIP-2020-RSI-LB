@@ -3,6 +3,7 @@ Velexi Template: Data Science Project
 
 ___Authors___  
 Kevin T. Chu `<kevin@velexi.com>`
+
 Luke E. Bemish `<lukebemish@gmail.com>`
 
 ------------------------------------------------------------------------------
