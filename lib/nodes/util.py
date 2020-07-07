@@ -4,7 +4,7 @@ import numpy as np
 
 import scipy.integrate
 
-#import time
+import time
 
 class FoldiakDiffEq:
     def __init__(self,node):
@@ -48,16 +48,16 @@ def weightsum(xarr, qarr):
 class FoldiakShapedDiffEq:
     def __init__(self, layer, qgroup, wgroup):
         self.net = layer.net
-        self.dt = layer.getdict().get("dt", 0.1)
+        #self.dt = layer.getdict().get("dt", 0.1)
         self.y0 = layer.getdict().get("starty", 0.0)
-        self.tnum = layer.getdict().get("tnum",100)
-        self.method = layer.getdict().get("intmethod","BDF")
+        #self.tnum = layer.getdict().get("tnum",100)
+        self.method = layer.getdict().get("intmethod","LSODA")
         self.qs = qgroup
         self.ws = wgroup
         self.layer = layer
-        self.tlin = np.linspace(0,self.dt*self.tnum, num=self.tnum)
+        #self.tlin = np.linspace(0,self.dt*self.tnum, num=self.tnum)
         self.l = layer.getdict().get("l", 10)
-        self.trange = (0, self.tnum*self.dt)
+        self.trange = (0, layer.getdict().get("tmax", 100))
     def update(self):
         xsum = weightsum(self.qs.input.returnvals(), self.qs.getbiases())
         l = self.l
@@ -68,6 +68,11 @@ class FoldiakShapedDiffEq:
         ode = lambda t,y: foldiak_func(l, xsum - ts + ysum(y)) - y
         #print(ode(np.full(self.layer.shape, self.y0), 0))
         #ys = scipy.integrate.odeint(ode, np.full(self.layer.shape, self.y0), self.tlin, tfirst=True)
+        #Timing code. comment as needed:
+        #t0 = time.clock()
         ys = scipy.integrate.solve_ivp(ode, self.trange, np.full(self.layer.nodes.shape, self.y0), method=self.method).y[:,-1]
+        #t1 = time.clock()
+        #tdiff = t1-t0
+        #self.net.meta_timing.append(tdiff)
         yfinals = np.where(ys > 0.5, 1, 0)
         self.layer.setvals(yfinals)

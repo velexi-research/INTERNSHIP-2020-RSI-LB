@@ -91,11 +91,13 @@ class FoldiakShapedNet(net):
         self.layers = []
         self.cgroups = []
         self.connects = []
+        self.meta_timing = []
         self.valdict = dict()
         self.inihblayers = []
         self.diffeqs = []
         self.isinit = False
     def setup(self):
+        self.meta_timing = []
         self.diffeqs = []
         for i in self.inihblayers:
             odesolver = FoldiakShapedDiffEq(i[0], i[1], i[2])
