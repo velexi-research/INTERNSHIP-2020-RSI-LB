@@ -52,9 +52,9 @@ class connect(core):
         pass
     def getval(self):
         return input.returnval()*self.bias
-    def to(node):
+    def to(self, node):
         return (node is self.output)
-    def fr(node):
+    def fr(self, node):
         return (node is self.input)
     def getdict(self):
         try:

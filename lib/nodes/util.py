@@ -2,7 +2,7 @@ from math import exp
 from numba import jit
 import numpy as np
 
-from scipy.integrate import odeint
+import scipy.integrate
 
 #import time
 
@@ -39,9 +39,9 @@ class FoldiakDiffEq:
 def foldiak_func(l, inside):
     return 1.0/(1.0+np.exp(-1 * l * inside))
 
-
-def weightsum(axin, qarr, xarr):
-    return np.tensordot(xarr,qarr, axes = axin)
+@njit
+def weightsum(xarr, qarr):
+    return np.matmul(xarr,qarr)
     
 
     
@@ -50,25 +50,24 @@ class FoldiakShapedDiffEq:
         self.dt = layer.getdict().get("dt", 0.1)
         self.y0 = layer.getdict().get("starty", 0.0)
         self.tnum = layer.getdict().get("tnum",100)
+        self.method = layer.getdict().get("intmethod","BDF")
         self.qs = qgroup
         self.ws = wgroup
         self.layer = layer
+        self.tlin = np.linspace(0,self.dt*self.tnum, num=self.tnum)
         self.net = layer.net
         self.l = layer.getdict().get("l", 10)
+        self.trange = (0, self.tnum*self.dt)
     def update(self):
-        xsum = self.getxsum()
+        xsum = weightsum(self.qs.input.returnvals(), self.qs.getbiases())
         l = self.l
         yax = len(self.ws.inshape)
         ws = self.ws.getbiases()
-        ts = self.layer.returnshapedthres()
-        tlin = np.linspace(0,self.dt*self.tnum, num=self.tnum)
-        ysum = lambda y: weightsum(yax,
-                                   ws, y)
-        ode = lambda y,t: foldiak_func(l, xsum - ts + ysum(y)) - y
+        ts = self.layer.returnthres()
+        ysum = lambda y: weightsum(y, ws)
+        ode = lambda t,y: foldiak_func(l, xsum - ts + ysum(y)) - y
         #print(ode(np.full(self.layer.shape, self.y0), 0))
-        ys = odeint(ode, np.full(self.layer.shape, self.y0), tlin)
+        #ys = scipy.integrate.odeint(ode, np.full(self.layer.shape, self.y0), self.tlin)
+        ys = scipy.integrate.solve_ivp(ode, self.trange, np.full(self.layer.nodes.shape, self.y0), method=self.method, t_eval=[self.trange[1]]).y
         yfinals = np.where(ys > 0.5, 1, 0)
-        self.layer.setshapedvals(yfinals)
-    def getxsum(self):
-        return weightsum(len(self.qs.inshape),
-                             self.qs.getbiases(), self.qs.input.returnshapedvals())
+        self.layer.setvals(yfinals)

@@ -40,21 +40,33 @@ class AntiHebbianConnect(connect):
 class ShapedCGroup(cgroup):
     vbias = np.vectorize(lambda i: i.bias)
     vupdate = np.vectorize(lambda i: i.update())
+    def setnet(i,net):
+        i.net = net
+    def setbias(i,bias):
+        i.bias = bias
+    vsetbias = np.vectorize(lambda i,bias: ShapedCGroup.setbias(i,bias))
+    vsetnet = np.vectorize((lambda i,net: ShapedCGroup.setnet(i,net)), excluded = {1})
+    
+    
+    
     def __init__(self, layerin, layerout):
         if (not isinstance(layerin, ShapedLayer)) or (not isinstance(layerout, ShapedLayer)):
             raise Exception("Either input or output is the wrong layer type; ShapedLayer needed for ShapedConnectGroup")
         self.connects = []
-        self.inshape = layerin.shape
-        self.outshape = layerout.shape
-        self.shape = (self.inshape+self.outshape)
+        self.inshape = layerin.nodes.shape
+        self.outshape = layerout.nodes.shape
+        self.shape = (self.inshape[0], self.outshape[0])
         self.input = layerin
         self.output = layerout
     def mkconnects(self, initer):
         vinit1 = np.vectorize(initer, excluded = {0})
         vinit = np.vectorize(vinit1, excluded = {1})
         vlist = np.vectorize(lambda i: i.tolist())
-        self.npconnects = np.array(vlist(vinit(self.input.npnodes, self.output.npnodes)).tolist())
+        self.npconnects = np.array(vlist(vinit(self.input.nodes, self.output.nodes)).tolist())
+        ShapedCGroup.vsetnet(self.npconnects, self.input.net)
     def getbiases(self):
         return ShapedCGroup.vbias(self.npconnects)
+    def setbiases(self, biases):
+        ShapedCGroup.vsetbias(self.npconnects, biases)
     def update(self):
         ShapedCGroup.vupdate(self.npconnects)

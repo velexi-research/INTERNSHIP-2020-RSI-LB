@@ -77,6 +77,11 @@ class FoldiakShapedNet(net):
     def connect_foldiak(self, layerin, layerout):
         cg1 = ShapedCGroup(layerin, layerout)
         cg1.mkconnects(HebbianConnect)
+        biases = cg1.getbiases()
+        biassum = np.sum(biases * biases)
+        cg1.setbiases(biases/biassum)
+        
+        
         self.cgroups.append(cg1)
         cg2 = ShapedCGroup(layerout, layerout)
         cg2.mkconnects(AntiHebbianConnect)
