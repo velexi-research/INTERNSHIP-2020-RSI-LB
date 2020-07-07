@@ -67,7 +67,7 @@ class FoldiakShapedDiffEq:
         ysum = lambda y: weightsum(y, ws)
         ode = lambda t,y: foldiak_func(l, xsum - ts + ysum(y)) - y
         #print(ode(np.full(self.layer.shape, self.y0), 0))
-        ys = scipy.integrate.odeint(ode, np.full(self.layer.shape, self.y0), self.tlin, tfirst=True)
-        #ys = scipy.integrate.solve_ivp(ode, self.trange, np.full(self.layer.nodes.shape, self.y0), method=self.method, t_eval=[self.trange[1]]).y
+        #ys = scipy.integrate.odeint(ode, np.full(self.layer.shape, self.y0), self.tlin, tfirst=True)
+        ys = scipy.integrate.solve_ivp(ode, self.trange, np.full(self.layer.nodes.shape, self.y0), method=self.method).y[:,-1]
         yfinals = np.where(ys > 0.5, 1, 0)
         self.layer.setvals(yfinals)

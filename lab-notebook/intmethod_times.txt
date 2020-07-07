@@ -1,3 +1,5 @@
+Values are averages over 200 iterations.
+
 non-vectorized euler (what I wrote):       0.016094658999999904 sec
 vectorized:
     odeint:                                0.01308842400000001  sec
