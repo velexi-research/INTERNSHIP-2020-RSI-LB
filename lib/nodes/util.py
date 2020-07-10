@@ -76,3 +76,19 @@ class FoldiakShapedDiffEq:
         #self.net.meta_timing.append(tdiff)
         yfinals = np.where(ys > 0.5, 1, 0)
         self.layer.setvals(yfinals)
+    def getytplot(self):
+        xsum = weightsum(self.qs.input.returnvals(), self.qs.getbiases())
+        l = self.l
+        yax = len(self.ws.inshape)
+        ws = self.ws.getbiases()
+        ts = self.layer.returnthres()
+        ysum = lambda y: weightsum(y, ws)
+        ode = lambda t,y: foldiak_func(l, xsum - ts + ysum(y)) - y
+        #print(ode(np.full(self.layer.shape, self.y0), 0))
+        #ys = scipy.integrate.odeint(ode, np.full(self.layer.shape, self.y0), self.tlin, tfirst=True)
+        #Timing code. comment as needed:
+        #t0 = time.clock()
+        solved = scipy.integrate.solve_ivp(ode, self.trange, np.full(self.layer.nodes.shape, self.y0), method=self.method)
+        y = solved.y
+        t = solved.t
+        return y, t
