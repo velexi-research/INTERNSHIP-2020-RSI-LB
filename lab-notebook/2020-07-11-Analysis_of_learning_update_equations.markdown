@@ -10,8 +10,9 @@
 Preface
 -------
 
-* This document is written using GitHub Markdown.  It is best viewed using a
-  Markdown viewer that supports GitHub Markdown:
+* This document is written using GitHub Markdown and uses LaTex to express
+  math equations. It is best viewed using a Markdown viewer that supports
+  GitHub Markdown and LaTeX rendering (e.g., using MathJax).
 
   * [Chrome Markdown Viewer][chrome-markdown-viewer]
 
@@ -22,7 +23,7 @@ Preface
 
       * Allow access to file URLS
 
-  * [Atom Editor](https://atom.io/)
+      * Enable `mathjax`
 
 -------------------------------------------------------------------------------
 
