@@ -18,13 +18,13 @@ class FoldiakNode(node):
         self.solver = None
     def update(self, connects):
         #round value
-        if self.val > 0.5:
-            self.val = 1
-        else:
-            self.val = 0
+        #if self.val > 0.5:
+        #    self.val = 1
+        #else:
+        #    self.val = 0
         #threshold modification
         y = self.getdict().get("y", 0.02)
-        p = self.getdict().get("p", 0.1)
+        p = self.getdict().get("p", 0.125)
         dt = y * (self.val - p)
         self.thres += dt
     def evaluate(self, connects):

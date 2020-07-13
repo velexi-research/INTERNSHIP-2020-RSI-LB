@@ -75,6 +75,7 @@ class FoldiakShapedDiffEq:
         #tdiff = t1-t0
         #self.net.meta_timing.append(tdiff)
         yfinals = np.where(ys > 0.5, 1, 0)
+        #self.layer.setvals(ys)
         self.layer.setvals(yfinals)
     def getytplot(self):
         xsum = weightsum(self.qs.input.returnvals(), self.qs.getbiases())

@@ -6,6 +6,11 @@ class ShapedLayer(layer):
     vtgetter = np.vectorize(lambda i: i.thres)
     vvalgetter = np.vectorize(lambda i: i.val)
     vvalsetter = np.vectorize(lambda ar, v: ar.setval(v))
+    def setlayer(i,layer):
+        i.layer = layer
+    vsetlayer = np.vectorize(setlayer, excluded={1})
+    
+    
     def __init__(self, shape):
         if not isinstance(shape, tuple):
             shape = (shape,)
@@ -21,6 +26,7 @@ class ShapedLayer(layer):
     def fillnodes(self, iner):
         vin = np.vectorize(lambda i: iner())
         self.npnodes = vin(self.npnodes)
+        ShapedLayer.vsetlayer(self.npnodes, self)
         self.u_nodelist()
     def u_nodelist(self):
         self.nodes = np.reshape(self.npnodes,-1)

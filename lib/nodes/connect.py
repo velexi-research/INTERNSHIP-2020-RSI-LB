@@ -58,6 +58,7 @@ class ShapedCGroup(cgroup):
         self.shape = (self.inshape[0], self.outshape[0])
         self.input = layerin
         self.output = layerout
+        self.net = self.input.net
     def mkconnects(self, initer):
         vinit1 = np.vectorize(initer, excluded = {0})
         vinit = np.vectorize(vinit1, excluded = {1})

@@ -112,3 +112,8 @@ class FoldiakShapedNet(net):
             i.update()
         for i in self.connects:
             i.update()
+    def updatethresonly(self):
+        for i in self.diffeqs:
+            i.update()
+        for i in self.layers:
+            i.update(self.connects)
