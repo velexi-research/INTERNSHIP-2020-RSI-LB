@@ -1,4 +1,4 @@
-Velexi Template: Data Science Project
+Modifications of Foldiak's Algorithm for Changing Bit Probabilities
 =====================================
 
 ___Authors___  
