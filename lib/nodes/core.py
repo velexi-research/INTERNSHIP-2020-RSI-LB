@@ -84,6 +84,8 @@ class node(core):
             return self.layer.net.getdict()
         except Exception:
             return nodes_empty_default_dict
+    def setup(self):
+        pass
 
 
 class layer(core):
@@ -114,6 +116,9 @@ class layer(core):
             return self.net.getdict()
         except Exception:
             return nodes_empty_default_dict
+    def setup(self):
+        for i in self.nodes:
+            i.setup()
 
 class cgroup(core):
     def __init__(self):
