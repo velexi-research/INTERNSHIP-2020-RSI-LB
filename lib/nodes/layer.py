@@ -23,13 +23,16 @@ class ShapedLayer(layer):
         self.npnodes = np.empty(self.shape, dtype=object)
         self.npnodes[:] = NullNode()
         self.u_nodelist()
-    def fillnodes(self, iner):
-        vin = np.vectorize(lambda i: iner())
+    def fillnodes(self, iner, *args):
+        vin = np.vectorize(lambda i: iner(*args))
         self.npnodes = vin(self.npnodes)
         ShapedLayer.vsetlayer(self.npnodes, self)
         self.u_nodelist()
     def u_nodelist(self):
         self.nodes = np.reshape(self.npnodes,-1)
+    def setup(self):
+        for i in self.nodes:
+            i.setup()
     def update(self, connects):
         for i in self.nodes:
             i.update(connects)

@@ -4,6 +4,7 @@ from nodes.layer import ShapedLayer
 from random import uniform
 
 import numpy as np
+import math
 
 class HebbianConnect(connect):
     def __init__(self, nodein, nodeout):
@@ -26,8 +27,9 @@ class AntiHebbianConnect(connect):
     def update(self):
         #anti-hebbian rule
         a = self.getdict().get("a", 0.1)
-        p = self.getdict().get("p", 0.1)
-        dw = (0.0-a) * ((self.input.val * self.output.val) - (p*p))
+        p_1 = self.input.p
+        p_2 = self.output.p
+        dw = (0.0-a) * ((self.input.val * self.output.val) - (p_1*p_2))
         self.bias += dw
         if (self.bias > 0):
             self.bias = 0.0
@@ -71,3 +73,6 @@ class ShapedCGroup(cgroup):
         ShapedCGroup.vsetbias(self.npconnects, biases)
     def update(self):
         ShapedCGroup.vupdate(self.npconnects)
+    def normbiases(self):
+        sum_of_rows = np.sqrt(np.square(self.getbiases()).sum(axis=1))
+        self.setbiases(self.getbiases() / sum_of_rows[:, np.newaxis])
