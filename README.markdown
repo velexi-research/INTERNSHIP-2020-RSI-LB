@@ -86,7 +86,7 @@ This project contains a modified version of [Foldiaks Algorithm][#foldiakalg] al
 
 ------------------------------------------------------------------------------
 
-3 References
+## 3. References
 ------------
 
 * P. Földiák.
