@@ -16,17 +16,9 @@ Table of Contents
 
    1.2. [Directory Structure][#1.2]
 
-   1.3. [Template Files][#1.3]
-
 2. [Usage][#2]
 
    2.1. [Setting Up][#2.1]
-
-   2.2. [Conventions][#2.2]
-
-   2.3. [Environment][#2.3]
-
-   2.4. [Using Jupyter Notebook][#2.4]
 
 3. [References][#3]
 
