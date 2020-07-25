@@ -1,4 +1,4 @@
-Modifications of Foldiak's Algorithm for Changing Bit Probabilities
+Modifications of Foldiak's Algorithm for Imbalanced Data
 =====================================
 
 ___Authors___  
