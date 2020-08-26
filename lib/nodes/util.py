@@ -6,6 +6,16 @@ import scipy.integrate
 
 import time
 
+@jit(nopython=True, parallel=True)
+def foldiak_func(l, inside):
+    return 1.0/(1.0+np.exp(-1 * l * inside))
+
+
+def weightsum(xarr, qarr):
+    return np.matmul(xarr,qarr)
+    
+
+
 class FoldiakShapedDiffEq:
     def __init__(self, layer, qgroup, wgroup):
         self.net = layer.net
