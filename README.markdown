@@ -83,8 +83,12 @@ This project contains a modified version of [Foldiaks Algorithm][#foldiakalg] al
   - Copy `config/env` to `.env` in project root directory.
 
   - Set template variables in `.env` (indicated by `{{ }}` notation).
+  
+  - This is not strictly necessary; the code should run fine without autoenv configured (and even without virtualenv) as long as everything else is set up.
 
 ------------------------------------------------------------------------------
+
+* Make sure the `lib` folder is in your `sys.path` or `PYTHONPATH`. One way to do this would be to put its path in a `.pth` file inside the `site-packages`.
 
 ## 3. References
 ------------
