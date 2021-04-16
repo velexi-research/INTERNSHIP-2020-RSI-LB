@@ -8,7 +8,7 @@ import math
     
 class FoldiakShapedNet(net):
     def connect_foldiak(self, layerin, layerout):
-        cg1 = ShapedCGroup(layerin, layerout)
+        cg1 = ShapedFeedingCGroup(layerin, layerout)
         cg1.mkconnects(HebbianConnect)
         
         cg1.normbiases()

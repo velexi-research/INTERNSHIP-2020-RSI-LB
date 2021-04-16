@@ -26,6 +26,10 @@ class FoldiakShapedDiffEq:
         self.qs = qgroup
         self.ws = wgroup
         self.layer = layer
+        self.numInConnects = 1
+        for ele in qgroup.input.shape:  
+            self.numInConnects *= ele
+        
         #self.tlin = np.linspace(0,self.dt*self.tnum, num=self.tnum)
         self.l = layer.getdict().get("l", 10)
         self.trange = (0, layer.getdict().get("tmax", 100))
@@ -49,7 +53,7 @@ class FoldiakShapedDiffEq:
         #self.layer.setvals(ys)
         self.layer.setvals(yfinals)
     def getytplot(self):
-        xsum = weightsum(self.qs.input.returnvals(), self.qs.getbiases())
+        xsum = weightsum(self.qs.input.returnvals(), self.qs.getbiases()) / self.numInConnects
         l = self.l
         yax = len(self.ws.inshape)
         ws = self.ws.getbiases()

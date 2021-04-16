@@ -55,3 +55,4 @@ class ShapedLayer(layer):
         ShapedLayer.vvalsetter(self.npnodes, vals)
     def setvals(self, vals):
         ShapedLayer.vvalsetter(self.nodes, vals)
+        
