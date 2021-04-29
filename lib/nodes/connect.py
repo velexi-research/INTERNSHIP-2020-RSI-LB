@@ -27,13 +27,17 @@ class AntiHebbianConnect(connect):
     def update(self):
         #anti-hebbian rule
         a = self.getdict().get("a", 0.1)
-        p_1 = self.input.p
-        p_2 = self.output.p
-        dw = (0.0-a) * ((self.input.val * self.output.val) - (p_1*p_2))
+        #p_1 = self.input.p
+        #p_2 = self.output.p
+        #dwOn = (0.0-a)
+        #dwOff = (0.0-a)*self.bias
+        #switch = self.input.val * self.output.val
+        #dw = dwOn * switch + dwOff * (1-switch)
+        dw = 0.0 - a * self.output.val * (self.input.val + self.bias)
         self.bias += dw
-        if (self.bias > 0):
-            self.bias = 0.0
-        elif (self.input is self.output):
+        #if (self.bias > 0):
+        #    self.bias = 0.0
+        if (self.input is self.output):
             self.bias = 0.0
     def pushval(self):
         self.output.solver.connects.append(self)
@@ -88,23 +92,3 @@ class ShapedCGroup(cgroup):
     def normbiases(self):
         sum_of_rows = np.sqrt(np.square(self.getbiases()).sum(axis=1))
         self.setbiases(self.getbiases() / sum_of_rows[:, np.newaxis])
-        
-
-
-class ShapedFeedingCGroup(ShapedCGroup):
-    def update_thres_connect(c, y):
-        dt = y * (c.bias)
-        c.output.thres += dt
-    def zero_thres_node(c):
-        c.thres = 0
-    vupdatethres = np.vectorize(lambda c, y: ShapedFeedingCGroup.update_thres_connect(c,y), excluded = {1})
-    vzerothres = np.vectorize(lambda c: ShapedFeedingCGroup.zero_thres_node(c))
-    
-    def __init__(self, layerin, layerout):
-        super().__init__(layerin, layerout)
-    def update(self):
-        super().update()
-        #y = self.getdict().get("y", 0.02) / self.insize
-        y = 0.5 / self.insize
-        ShapedFeedingCGroup.vzerothres(self.output.nodes)
-        ShapedFeedingCGroup.vupdatethres(self.npconnects,y)
