@@ -6,6 +6,7 @@ from random import uniform
 import numpy as np
 import math
 
+
 class HebbianConnect(connect):
     def __init__(self, nodein, nodeout):
         self.input = nodein
@@ -18,30 +19,7 @@ class HebbianConnect(connect):
         self.bias += dq
     def pushval(self):
         self.output.solver.last_cs.append(self)
-    
-class AntiHebbianConnect(connect):
-    def __init__(self, nodein, nodeout):
-        self.input = nodein
-        self.output = nodeout
-        self.bias = 0.0
-    def update(self):
-        #anti-hebbian rule
-        a = self.getdict().get("a", 0.1)
-        #p_1 = self.input.p
-        #p_2 = self.output.p
-        #dwOn = (0.0-a)
-        #dwOff = (0.0-a)*self.bias
-        #switch = self.input.val * self.output.val
-        #dw = dwOn * switch + dwOff * (1-switch)
-        dw = 0.0 - a * self.output.val * (self.input.val + self.bias)
-        self.bias += dw
-        #if (self.bias > 0):
-        #    self.bias = 0.0
-        if (self.input is self.output):
-            self.bias = 0.0
-    def pushval(self):
-        self.output.solver.connects.append(self)
-        
+
 
 class ShapedCGroup(cgroup):
     vbias = np.vectorize(lambda i: i.getbias())

@@ -14,12 +14,7 @@ class FoldiakShapedNet(net):
         cg1.normbiases()
         
         self.cgroups.append(cg1)
-        
-        
-        cg2 = ShapedCGroup(layerout, layerout)
-        cg2.mkconnects(AntiHebbianConnect)
-        self.cgroups.append(cg2)
-        self.inihblayers.append([layerout,cg1,cg2])
+        self.inihblayers.append([layerout,cg1])
     def __init__(self):
         self.layers = []
         self.cgroups = []
@@ -35,7 +30,7 @@ class FoldiakShapedNet(net):
         self.meta_timing = []
         self.diffeqs = []
         for i in self.inihblayers:
-            odesolver = FoldiakShapedDiffEq(i[0], i[1], i[2])
+            odesolver = FoldiakShapedDiffEq(i[0], i[1])
             self.diffeqs.append(odesolver)
         self.isinit = True
     def update(self):
@@ -45,6 +40,8 @@ class FoldiakShapedNet(net):
             i.update()
         for i in self.connects:
             i.update()
+        for i in self.cgroups:
+            i.normbiases()
         for i in self.layers:
             i.update(self.connects)
     def updatethresonly(self):

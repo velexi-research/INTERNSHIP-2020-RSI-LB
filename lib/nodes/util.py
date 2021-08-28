@@ -15,36 +15,41 @@ def weightsum(xarr, qarr):
     return np.matmul(xarr,qarr)
     
 
+@jit(nopython=True, parallel=True)
+def threshold(subthres,thres):
+    return (subthres-thres) * (subthres > thres)
+    #return (1-np.exp(-(subthres-thres))) * (subthres > thres)
+    #return (subthres > thres)
+
+thresval = 0.2
+
 
 class FoldiakShapedDiffEq:
-    def __init__(self, layer, qgroup, wgroup):
+    def __init__(self, layer, qgroup):
         self.net = layer.net
         #self.dt = layer.getdict().get("dt", 0.1)
         self.y0 = layer.getdict().get("starty", 0.0)
         #self.tnum = layer.getdict().get("tnum",100)
         self.method = layer.getdict().get("intmethod","LSODA")
         self.qs = qgroup
-        self.ws = wgroup
         self.layer = layer
         self.numInConnects = 1
         for ele in qgroup.input.shape:  
             self.numInConnects *= ele
-        
-        self.numSelfConnects = 1
-        for ele in wgroup.input.shape:  
-            self.numSelfConnects *= ele
-        
         #self.tlin = np.linspace(0,self.dt*self.tnum, num=self.tnum)
         self.l = layer.getdict().get("l", 10)
         self.trange = (0, layer.getdict().get("tmax", 100))
     def update(self):
-        xsum = weightsum(self.qs.input.returnvals(), self.qs.getbiases())
+        qs = self.qs.getbiases()
+        xsum = weightsum(self.qs.input.returnvals(), qs)
         l = self.l
-        yax = len(self.ws.inshape)
-        ws = self.ws.getbiases()
+        qsf = np.swapaxes(qs, 0, 1)
+        ws = np.matmul(qsf,qs)
+        np.fill_diagonal(ws, 0)
         ts = self.layer.returnthres()
-        ysum = lambda y: weightsum(y, ws)
-        ode = lambda t,y: foldiak_func(l, xsum - ts + ysum(y)) - y
+        ysum = lambda y: weightsum(threshold(y,thresval), ws)
+        #ode = lambda t,y: foldiak_func(l, xsum - ts + ysum(y)) - y
+        ode = lambda t,y: (1/l)*(xsum - y - ysum(y))
         #print(ode(np.full(self.layer.shape, self.y0), 0))
         #ys = scipy.integrate.odeint(ode, np.full(self.layer.shape, self.y0), self.tlin, tfirst=True)
         #Timing code. comment as needed:
@@ -53,17 +58,18 @@ class FoldiakShapedDiffEq:
         #t1 = time.clock()
         #tdiff = t1-t0
         #self.net.meta_timing.append(tdiff)
-        yfinals = np.where(ys > 0.5, 1, 0)
+        yfinals = threshold(ys,thresval)
         #self.layer.setvals(ys)
         self.layer.setvals(yfinals)
     def getytplot(self):
-        xsum = weightsum(self.qs.input.returnvals(), self.qs.getbiases())
+        qs = self.qs.getbiases()
+        xsum = weightsum(self.qs.input.returnvals(), qs)
         l = self.l
-        yax = len(self.ws.inshape)
-        ws = self.ws.getbiases()
-        ts = self.layer.returnthres()
-        ysum = lambda y: weightsum(y, ws)
-        ode = lambda t,y: foldiak_func(l, xsum - ts + ysum(y)) - y
+        qsf = np.swapaxes(qs, 0, 1)
+        ws = np.matmul(qsf,qs)
+        np.fill_diagonal(ws, 0)
+        ysum = lambda y: weightsum(threshold(y,thresval), ws)
+        ode = lambda t,y: (1/l)*(xsum - y - ysum(y))
         #print(ode(np.full(self.layer.shape, self.y0), 0))
         #ys = scipy.integrate.odeint(ode, np.full(self.layer.shape, self.y0), self.tlin, tfirst=True)
         #Timing code. comment as needed:
